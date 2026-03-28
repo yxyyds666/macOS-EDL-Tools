@@ -8,7 +8,7 @@ class Logger: ObservableObject {
     private let maxEntries = 2000
     
     private var logFileURL: URL? {
-        let appSupport = FileManager.default.applicationSupportDirectory
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         return appSupport.appendingPathComponent("EDLTool/logs/\(getLogFileName())")
     }
     

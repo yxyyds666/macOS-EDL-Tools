@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - USB Device Model
 struct USBDevice: Identifiable, Hashable {

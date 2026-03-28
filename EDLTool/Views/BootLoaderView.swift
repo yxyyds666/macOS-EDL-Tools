@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 // MARK: - Bootloader View
 struct BootLoaderView: View {
@@ -220,7 +221,7 @@ struct BootLoaderView: View {
         }
         .fileImporter(
             isPresented: $showingFilePicker,
-            allowedContentTypes: selectedBootloaderType == .edlUefi ? [.filenameExtension("efi")] : [.data],
+            allowedContentTypes: selectedBootloaderType == .edlUefi ? [UTType(filenameExtension: "efi") ?? .data] : [.data],
             allowsMultipleSelection: false
         ) { result in
             switch result {
@@ -335,12 +336,5 @@ struct BootloaderTypeCard: View {
         case .oneplusAuth: return "plus.circle"
         case .custom: return "doc.badge.plus"
         }
-    }
-}
-
-// MARK: - UTType Extension
-extension UTType {
-    static func filenameExtension(_ ext: String) -> UTType {
-        UTType(filenameExtension: ext, conformingTo: .data) ?? .data
     }
 }
