@@ -4,18 +4,12 @@ import Foundation
 class EDLService {
     
     private var process: Process?
-    private var outputPipe = Pipe()
-    private var errorPipe = Pipe()
     private var isCancelled = false
     
-    // Path to embedded EDL tool
-    private var edlToolPath: URL {
-        Bundle.main.url(forResource: "edl", withExtension: nil) ??
-        Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/edl", isDirectory: true)
-    }
-    
-    private var edlScriptPath: URL {
-        edlToolPath.appendingPathComponent("edl.py")
+    // Path to embedded EDL binary
+    private var edlBinaryPath: URL {
+        Bundle.main.url(forResource: "edl_bin", withExtension: nil) ??
+        Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/edl_bin")
     }
     
     // MARK: - Execute EDL Command
@@ -23,25 +17,16 @@ class EDLService {
         isCancelled = false
         let startTime = Date()
         
-        // Find Python - use system Python3
-        let pythonURL = URL(fileURLWithPath: "/usr/bin/python3")
+        let edlPath = edlBinaryPath
         
-        // Check if embedded edl exists
-        let edlExists = FileManager.default.fileExists(atPath: edlScriptPath.path)
+        // Check if embedded binary exists
+        guard FileManager.default.fileExists(atPath: edlPath.path) else {
+            throw EDLError.executionFailed("EDL 二进制文件未找到: \(edlPath.path)")
+        }
         
         let process = Process()
-        
-        if edlExists {
-            // Use embedded EDL
-            process.executableURL = pythonURL
-            process.arguments = [edlScriptPath.path] + args
-            process.environment = ProcessInfo.processInfo.environment
-            process.environment?["PYTHONPATH"] = edlToolPath.path
-        } else {
-            // Fall back to system installed edl module
-            process.executableURL = pythonURL
-            process.arguments = ["-m", "edl"] + args
-        }
+        process.executableURL = edlPath
+        process.arguments = args
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -50,8 +35,6 @@ class EDLService {
         process.standardInput = FileHandle.nullDevice
         
         self.process = process
-        self.outputPipe = outputPipe
-        self.errorPipe = errorPipe
         
         let outputData = NSMutableData()
         let errorData = NSMutableData()
@@ -90,47 +73,43 @@ class EDLService {
     // MARK: - Partition Operations
     
     func getPartitionTable() async throws -> EDLResult {
-        return try await executeEDL(args: ["--gpt"], timeout: 30)
+        return try await executeEDL(args: ["printgpt"], timeout: 30)
     }
     
     func readPartition(name: String, outputURL: URL) async throws -> EDLResult {
         return try await executeEDL(args: [
-            "--read", name,
-            "--output", outputURL.path
+            "r", name, outputURL.path
         ], timeout: 600)
     }
     
     func writePartition(name: String, inputURL: URL) async throws -> EDLResult {
         return try await executeEDL(args: [
-            "--write", name,
-            "--input", inputURL.path
+            "w", name, inputURL.path
         ], timeout: 600)
     }
     
     func erasePartition(name: String) async throws -> EDLResult {
-        return try await executeEDL(args: ["--erase", name], timeout: 60)
+        return try await executeEDL(args: ["e", name], timeout: 60)
     }
     
     // MARK: - Bootloader Operations
     
     func sendBootloader(url: URL) async throws -> EDLResult {
         return try await executeEDL(args: [
-            "--loader", url.path,
-            "--connect"
+            "--loader", url.path
         ], timeout: 60)
     }
     
     func connectOnePlusAuth() async throws -> EDLResult {
-        // OnePlus EDL auth bypass
-        return try await executeEDL(args: [
-            "--oneplus", "--connect"
-        ], timeout: 30)
+        // OnePlus EDL auth bypass - try different methods
+        let result = try await executeEDL(args: ["--search"], timeout: 30)
+        return result
     }
     
     func connect(device: String? = nil) async throws -> EDLResult {
-        var args = ["--connect"]
+        var args = ["--search"]
         if let device = device {
-            args.append(contentsOf: ["--device", device])
+            args.append(contentsOf: ["--portname", device])
         }
         return try await executeEDL(args: args, timeout: 30)
     }
@@ -138,10 +117,12 @@ class EDLService {
     // MARK: - XML Flash Operations
     
     func flashXMLFiles(urls: [URL], progress: @escaping (Double) -> Void) async throws -> EDLResult {
-        var args = ["--flash"]
+        // Flash using rawprogram and patch files
+        // EDL binary supports: flash <rawprogram> <patch>
+        var args = ["flash"]
         
         for url in urls {
-            args.append(contentsOf: ["--xml", url.path])
+            args.append(url.path)
         }
         
         // Track progress
@@ -163,13 +144,13 @@ class EDLService {
     
     func backupAll(to directory: URL) async throws -> EDLResult {
         return try await executeEDL(args: [
-            "--backup", directory.path
+            "rl", directory.path
         ], timeout: 1800)
     }
     
     func restoreAll(from directory: URL) async throws -> EDLResult {
         return try await executeEDL(args: [
-            "--restore", directory.path
+            "wl", directory.path
         ], timeout: 1800)
     }
     

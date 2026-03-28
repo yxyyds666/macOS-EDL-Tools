@@ -42,7 +42,13 @@
 		B1000014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B1000015 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B1000020 /* libusb-1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libusb-1.0.0.dylib; sourceTree = "<group>"; };
-		B1000021 /* edl */ = {isa = PBXFileReference; lastKnownFileType = folder; path = edl; sourceTree = "<group>"; };
+		B1000016 /* edl in Resources */ = {isa = PBXBuildFile; fileRef = B1000022; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B1000021 /* edl_bin */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = edl_bin; sourceTree = "<group>"; };
+		B1000022 /* bootloaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bootloaders; sourceTree = "<group>"; };
+/* End PBXFileReference section */
 		C1000001 /* EDLTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EDLTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
