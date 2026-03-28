@@ -10,13 +10,12 @@ class EDLService {
     
     // Path to embedded EDL tool
     private var edlToolPath: URL {
-        Bundle.main.bundleURL
-            .appendingPathComponent("Contents/Resources/edl", isDirectory: true)
+        Bundle.main.url(forResource: "edl", withExtension: nil) ??
+        Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/edl", isDirectory: true)
     }
     
-    private var pythonPath: URL {
-        Bundle.main.bundleURL
-            .appendingPathComponent("Contents/Resources/python3/bin/python3")
+    private var edlScriptPath: URL {
+        edlToolPath.appendingPathComponent("edl.py")
     }
     
     // MARK: - Execute EDL Command
@@ -24,28 +23,25 @@ class EDLService {
         isCancelled = false
         let startTime = Date()
         
-        // Find Python
-        let pythonURL: URL
-        if FileManager.default.fileExists(atPath: pythonPath.path) {
-            pythonURL = pythonPath
-        } else {
-            // Use system Python
-            pythonURL = URL(fileURLWithPath: "/usr/bin/python3")
-        }
+        // Find Python - use system Python3
+        let pythonURL = URL(fileURLWithPath: "/usr/bin/python3")
         
-        // Find EDL script
-        let edlScript = edlToolPath.appendingPathComponent("edl").path
-        
-        // Check if edl exists
-        guard FileManager.default.fileExists(atPath: edlScript) else {
-            // Fall back to system installed edl
-            let systemEdlResult = try await executeSystemEDL(args: args, timeout: timeout)
-            return systemEdlResult
-        }
+        // Check if embedded edl exists
+        let edlExists = FileManager.default.fileExists(atPath: edlScriptPath.path)
         
         let process = Process()
-        process.executableURL = pythonURL
-        process.arguments = [edlScript] + args
+        
+        if edlExists {
+            // Use embedded EDL
+            process.executableURL = pythonURL
+            process.arguments = [edlScriptPath.path] + args
+            process.environment = ProcessInfo.processInfo.environment
+            process.environment?["PYTHONPATH"] = edlToolPath.path
+        } else {
+            // Fall back to system installed edl module
+            process.executableURL = pythonURL
+            process.arguments = ["-m", "edl"] + args
+        }
         
         let outputPipe = Pipe()
         let errorPipe = Pipe()
@@ -89,40 +85,6 @@ class EDLService {
         let success = process.terminationStatus == 0 && !isCancelled
         
         return EDLResult(success: success, output: output, error: error, duration: duration)
-    }
-    
-    // MARK: - Execute System EDL (fallback)
-    private func executeSystemEDL(args: [String], timeout: TimeInterval) async throws -> EDLResult {
-        let startTime = Date()
-        
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        process.arguments = ["python3", "-m", "edl"] + args
-        
-        let outputPipe = Pipe()
-        let errorPipe = Pipe()
-        process.standardOutput = outputPipe
-        process.standardError = errorPipe
-        
-        self.process = process
-        
-        do {
-            try process.run()
-            process.waitUntilExit()
-        } catch {
-            throw EDLError.executionFailed(error.localizedDescription)
-        }
-        
-        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-        let duration = Date().timeIntervalSince(startTime)
-        
-        let output = String(data: outputData, encoding: .utf8) ?? ""
-        let errorOutput = String(data: errorData, encoding: .utf8)
-        
-        let success = process.terminationStatus == 0
-        
-        return EDLResult(success: success, output: output, error: errorOutput, duration: duration)
     }
     
     // MARK: - Partition Operations

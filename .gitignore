@@ -28,6 +28,3 @@ Package.resolved
 # Temp files
 *.tmp
 *.temp
-
-# EDL tools (downloaded separately)
-Resources/edl/

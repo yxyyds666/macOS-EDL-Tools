@@ -21,6 +21,8 @@
 		A1000012 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000012; };
 		A1000013 /* PartitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000013; };
 		A1000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000014; };
+		A1000015 /* libusb-1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B1000020; };
+		A1000016 /* edl in Resources */ = {isa = PBXBuildFile; fileRef = B1000021; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +41,8 @@
 		B1000013 /* PartitionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartitionManager.swift; sourceTree = "<group>"; };
 		B1000014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B1000015 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B1000020 /* libusb-1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libusb-1.0.0.dylib; sourceTree = "<group>"; };
+		B1000021 /* edl */ = {isa = PBXFileReference; lastKnownFileType = folder; path = edl; sourceTree = "<group>"; };
 		C1000001 /* EDLTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EDLTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -47,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1000015 /* libusb-1.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,6 +63,7 @@
 			children = (
 				E1000002 /* EDLTool */,
 				E1000010 /* Resources */,
+				E1000013 /* Frameworks */,
 				E1000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -135,17 +141,10 @@
 		E1000010 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E1000011 /* edl */,
+				B1000021 /* edl */,
 				E1000012 /* bootloaders */,
 			);
 			path = Resources;
-			sourceTree = "<group>";
-		};
-		E1000011 /* edl */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = edl;
 			sourceTree = "<group>";
 		};
 		E1000012 /* bootloaders */ = {
@@ -153,6 +152,14 @@
 			children = (
 			);
 			path = bootloaders;
+			sourceTree = "<group>";
+		};
+		E1000013 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B1000020 /* libusb-1.0.0.dylib */,
+			);
+			path = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -165,6 +172,7 @@
 				H1000001 /* Sources */,
 				D1000001 /* Frameworks */,
 				H1000002 /* Resources */,
+				H1000003 /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
@@ -215,10 +223,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000014 /* Assets.xcassets in Resources */,
+				A1000016 /* edl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		H1000003 /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A1000015 /* libusb-1.0.0.dylib in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		H1000001 /* Sources */ = {
@@ -370,7 +393,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EDLTool/Info.plist;
@@ -381,6 +404,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.edltool.app;
@@ -399,7 +426,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EDLTool/Info.plist;
@@ -410,6 +437,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.edltool.app;
