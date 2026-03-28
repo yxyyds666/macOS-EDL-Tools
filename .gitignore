@@ -1,0 +1,33 @@
+# Xcode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+!*.xcworkspace/xcshareddata/
+
+# Build
+build/
+DerivedData/
+*.build/
+Packages/
+Package.resolved
+
+# Swift PM
+.swiftpm/
+
+# macOS
+.DS_Store
+*.dSYM
+
+# IDE
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# Temp files
+*.tmp
+*.temp
+
+# EDL tools (downloaded separately)
+Resources/edl/
