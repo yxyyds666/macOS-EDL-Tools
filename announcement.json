@@ -1,7 +1,7 @@
 {
     "id": "announcement-20260329",
-    "title": "欢迎使用 EDL Tool",
-    "content": "测试感谢使用 macOS EDL Tool！\n\n当前版本支持：\n• 自动检测 EDL (9008) 设备\n• 发送 Firehose 引导加载器\n• 分区列表读取和管理\n• 多种 Qualcomm 芯片平台\n\n注意事项：\n• OPPO/一加设备 VIP 认证功能开发中\n• 操作有风险，请提前备份数据\n\n如有问题请在 GitHub 提交 Issue。",
+    "title": "欢迎使用 EDL for MacOs Tool --by 昱夕",
+    "content": "感谢使用 macOS EDL Tool！\n\n当前版本支持：\n• 自动检测 EDL (9008) 设备\n• 发送 Firehose 引导加载器\n• 分区列表读取和管理\n• 多种 Qualcomm 芯片平台\n\n注意事项：\n• OPPO/一加设备 VIP 认证功能开发中\n• 操作有风险，请提前备份数据\n\n如有问题请在 GitHub 提交 Issue。",
     "type": "info",
     "isActive": true,
     "createdAt": "2026-03-29T00:00:00Z",
