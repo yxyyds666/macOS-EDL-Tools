@@ -24,6 +24,10 @@
 		A1000015 /* libusb-1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B1000020; };
 		A1000016 /* edl in Resources */ = {isa = PBXBuildFile; fileRef = B1000021; };
 		A1000017 /* oplus-9008 in Resources */ = {isa = PBXBuildFile; fileRef = B1000023; };
+		A1000018 /* UpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000024; };
+		A1000019 /* AnnouncementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000025; };
+		A1000020 /* UpdateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000026; };
+		A1000021 /* AnnouncementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000027; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,14 +47,13 @@
 		B1000014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B1000015 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B1000020 /* libusb-1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libusb-1.0.0.dylib; sourceTree = "<group>"; };
-		B1000016 /* edl in Resources */ = {isa = PBXBuildFile; fileRef = B1000022; };
-/* End PBXBuildFile section */
-
-/* Begin PBXFileReference section */
 		B1000021 /* edl_bin */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = edl_bin; sourceTree = "<group>"; };
 		B1000022 /* bootloaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bootloaders; sourceTree = "<group>"; };
 		B1000023 /* oplus-9008 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = oplus-9008; sourceTree = "<group>"; };
-/* End PBXFileReference section */
+		B1000024 /* UpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateService.swift; sourceTree = "<group>"; };
+		B1000025 /* AnnouncementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementService.swift; sourceTree = "<group>"; };
+		B1000026 /* UpdateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateView.swift; sourceTree = "<group>"; };
+		B1000027 /* AnnouncementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementView.swift; sourceTree = "<group>"; };
 		C1000001 /* EDLTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EDLTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -123,6 +126,8 @@
 				B1000008 /* PartitionListView.swift */,
 				B1000009 /* BootLoaderView.swift */,
 				B1000010 /* XMLFlashView.swift */,
+				B1000026 /* UpdateView.swift */,
+				B1000027 /* AnnouncementView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -133,6 +138,8 @@
 				B1000004 /* USBMonitor.swift */,
 				B1000005 /* EDLService.swift */,
 				B1000013 /* PartitionManager.swift */,
+				B1000024 /* UpdateService.swift */,
+				B1000025 /* AnnouncementService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -149,7 +156,7 @@
 		E1000010 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B1000021 /* edl */,
+				B1000021 /* edl_bin */,
 				E1000012 /* bootloaders */,
 				B1000023 /* oplus-9008 */,
 			);
@@ -271,6 +278,10 @@
 				A1000011 /* Extensions.swift in Sources */,
 				A1000012 /* Logger.swift in Sources */,
 				A1000013 /* PartitionManager.swift in Sources */,
+				A1000018 /* UpdateService.swift in Sources */,
+				A1000019 /* AnnouncementService.swift in Sources */,
+				A1000020 /* UpdateView.swift in Sources */,
+				A1000021 /* AnnouncementView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,7 +377,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEBOOK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
