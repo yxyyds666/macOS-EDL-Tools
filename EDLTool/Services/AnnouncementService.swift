@@ -50,6 +50,7 @@ class AnnouncementService: ObservableObject {
         
         // 首先尝试从远程获取
         if let remoteAnnouncement = await fetchRemoteAnnouncement() {
+            // 只有未读时才更新状态
             if shouldShowAnnouncement(remoteAnnouncement) {
                 currentAnnouncement = remoteAnnouncement
                 hasUnreadAnnouncement = true
@@ -159,14 +160,13 @@ class AnnouncementService: ObservableObject {
     
     private func loadCachedAnnouncement() {
         guard let data = UserDefaults.standard.data(forKey: "cachedAnnouncement"),
-              let announcement = try? JSONDecoder().decode(Announcement.self, from: data) else {
+              let announcement = try? JSONDecoder().decode(Announcement.self, from: data),
+              shouldShowAnnouncement(announcement) else {
             return
         }
         
-        if shouldShowAnnouncement(announcement) {
-            currentAnnouncement = announcement
-            hasUnreadAnnouncement = true
-        }
+        currentAnnouncement = announcement
+        hasUnreadAnnouncement = true
     }
     
     // 重置所有已读状态（用于测试）
