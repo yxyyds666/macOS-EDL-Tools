@@ -39,7 +39,7 @@ class AnnouncementService: ObservableObject {
     private let readAnnouncementsKey = "readAnnouncements"
     
     private init() {
-        loadCachedAnnouncement()
+        // 不加载缓存，每次都从远程获取
     }
     
     func fetchAnnouncement() async {
@@ -55,7 +55,14 @@ class AnnouncementService: ObservableObject {
             return
         }
         
-        // 如果远程获取失败，使用本地公告
+        // 如果远程获取失败，使用缓存
+        if let cachedAnnouncement = loadCachedAnnouncement() {
+            currentAnnouncement = cachedAnnouncement
+            hasUnreadAnnouncement = cachedAnnouncement.isActive
+            return
+        }
+        
+        // 最后使用本地公告
         if let localAnnouncement = getLocalAnnouncement() {
             currentAnnouncement = localAnnouncement
             hasUnreadAnnouncement = localAnnouncement.isActive
@@ -63,11 +70,14 @@ class AnnouncementService: ObservableObject {
     }
     
     private func fetchRemoteAnnouncement() async -> Announcement? {
-        guard let url = URL(string: announcementURL) else { return nil }
+        // 添加时间戳参数避免 CDN 缓存
+        let urlString = "\(announcementURL)?t=\(Int(Date().timeIntervalSince1970))"
+        guard let url = URL(string: urlString) else { return nil }
         
         do {
             var request = URLRequest(url: url)
             request.timeoutInterval = 10
+            request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             
             let (data, response) = try await URLSession.shared.data(for: request)
             
@@ -146,14 +156,12 @@ class AnnouncementService: ObservableObject {
         }
     }
     
-    private func loadCachedAnnouncement() {
+    private func loadCachedAnnouncement() -> Announcement? {
         guard let data = UserDefaults.standard.data(forKey: "cachedAnnouncement"),
               let announcement = try? JSONDecoder().decode(Announcement.self, from: data) else {
-            return
+            return nil
         }
-        
-        currentAnnouncement = announcement
-        hasUnreadAnnouncement = announcement.isActive
+        return announcement
     }
     
     // 重置所有已读状态（用于测试）
