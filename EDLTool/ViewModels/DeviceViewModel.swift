@@ -11,9 +11,18 @@ class DeviceViewModel: ObservableObject {
     
     private let usbMonitor = USBMonitor()
     private var cancellables = Set<AnyCancellable>()
+    private var hasStarted = false
     
     // MARK: - Start Monitoring
     func startMonitoring() {
+        // 防止重复启动
+        guard !hasStarted else {
+            // 已经启动，只刷新设备列表
+            refreshDevices()
+            return
+        }
+        hasStarted = true
+        
         usbMonitor.startMonitoring()
         isMonitoring = true
         

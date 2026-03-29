@@ -23,6 +23,7 @@
 		A1000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000014; };
 		A1000015 /* libusb-1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B1000020; };
 		A1000016 /* edl in Resources */ = {isa = PBXBuildFile; fileRef = B1000021; };
+		A1000017 /* oplus-9008 in Resources */ = {isa = PBXBuildFile; fileRef = B1000023; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 /* Begin PBXFileReference section */
 		B1000021 /* edl_bin */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = edl_bin; sourceTree = "<group>"; };
 		B1000022 /* bootloaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bootloaders; sourceTree = "<group>"; };
+		B1000023 /* oplus-9008 */ = {isa = PBXFileReference; lastKnownFileType = folder; path = oplus-9008; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 		C1000001 /* EDLTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EDLTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -149,6 +151,7 @@
 			children = (
 				B1000021 /* edl */,
 				E1000012 /* bootloaders */,
+				B1000023 /* oplus-9008 */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -230,6 +233,7 @@
 			files = (
 				A1000014 /* Assets.xcassets in Resources */,
 				A1000016 /* edl in Resources */,
+				A1000017 /* oplus-9008 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

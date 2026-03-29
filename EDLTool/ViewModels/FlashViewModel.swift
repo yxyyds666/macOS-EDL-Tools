@@ -129,7 +129,7 @@ class FlashViewModel: ObservableObject {
     
     // MARK: - Bootloader Operations
     
-    func sendBootloader(url: URL) async {
+    func sendBootloader(url: URL) async throws -> EDLResult {
         await MainActor.run {
             isOperating = true
             operationStatus = "正在发送引导文件..."
@@ -144,34 +144,14 @@ class FlashViewModel: ObservableObject {
                 self.isOperating = false
                 self.operationProgress = 1.0
             }
-        } catch {
-            await MainActor.run {
-                self.operationStatus = "错误: \(error.localizedDescription)"
-                self.isOperating = false
-            }
-        }
-    }
-    
-    func connectOnePlusAuth() async {
-        await MainActor.run {
-            isOperating = true
-            operationStatus = "正在连接一加免授权模式..."
-            operationProgress = 0
-        }
-        
-        do {
-            let result = try await edlService.connectOnePlusAuth()
             
-            await MainActor.run {
-                self.operationStatus = result.success ? "连接成功" : "连接失败: \(result.error ?? "")"
-                self.isOperating = false
-                self.operationProgress = 1.0
-            }
+            return result
         } catch {
             await MainActor.run {
                 self.operationStatus = "错误: \(error.localizedDescription)"
                 self.isOperating = false
             }
+            throw error
         }
     }
     

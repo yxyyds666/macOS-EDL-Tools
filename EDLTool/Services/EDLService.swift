@@ -13,7 +13,7 @@ class EDLService {
     }
     
     // MARK: - Execute EDL Command
-    private func executeEDL(args: [String], timeout: TimeInterval = 300) async throws -> EDLResult {
+    private func executeEDL(args: [String], timeout: TimeInterval = 60) async throws -> EDLResult {
         isCancelled = false
         let startTime = Date()
         
@@ -23,6 +23,14 @@ class EDLService {
         guard FileManager.default.fileExists(atPath: edlPath.path) else {
             throw EDLError.executionFailed("EDL 二进制文件未找到: \(edlPath.path)")
         }
+        
+        // Ensure logs directory exists (required by edl tool)
+        let logsDir = FileManager.default.currentDirectoryPath + "/logs"
+        try? FileManager.default.createDirectory(atPath: logsDir, withIntermediateDirectories: true)
+        
+        // Log the full command
+        let fullCommand = "\(edlPath.path) \(args.joined(separator: " "))"
+        AppState.shared.addLog("执行命令: \(fullCommand)", level: .info)
         
         let process = Process()
         process.executableURL = edlPath
@@ -39,11 +47,18 @@ class EDLService {
         let outputData = NSMutableData()
         let errorData = NSMutableData()
         
-        // Read output asynchronously
+        // Read output asynchronously and log
         outputPipe.fileHandleForReading.readabilityHandler = { handle in
             let data = handle.availableData
             if !data.isEmpty {
                 outputData.append(data)
+                // Log output in real-time
+                if let output = String(data: data, encoding: .utf8) {
+                    let lines = output.components(separatedBy: .newlines).filter { !$0.isEmpty }
+                    for line in lines {
+                        AppState.shared.addLog("[EDL] \(line)", level: .info)
+                    }
+                }
             }
         }
         
@@ -51,23 +66,69 @@ class EDLService {
             let data = handle.availableData
             if !data.isEmpty {
                 errorData.append(data)
+                // Log error in real-time
+                if let error = String(data: data, encoding: .utf8) {
+                    let lines = error.components(separatedBy: .newlines).filter { !$0.isEmpty }
+                    for line in lines {
+                        AppState.shared.addLog("[EDL] \(line)", level: .warning)
+                    }
+                }
             }
         }
         
         do {
             try process.run()
-            process.waitUntilExit()
+            
+            // 使用简化的超时等待
+            let terminationStatus = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Int32, Error>) in
+                // 超时检查
+                let timeoutItem = DispatchWorkItem {
+                    if process.isRunning {
+                        process.terminate()
+                        continuation.resume(throwing: EDLError.timeout)
+                    }
+                }
+                DispatchQueue.global().asyncAfter(deadline: .now() + timeout, execute: timeoutItem)
+                
+                // 在后台线程等待进程结束
+                DispatchQueue.global().async {
+                    process.waitUntilExit()
+                    timeoutItem.cancel()
+                    if !timeoutItem.isCancelled {
+                        continuation.resume(returning: process.terminationStatus)
+                    }
+                }
+            }
+            
+            let output = String(data: outputData as Data, encoding: .utf8) ?? ""
+            let error = String(data: errorData as Data, encoding: .utf8)
+            let duration = Date().timeIntervalSince(startTime)
+            
+            let success = terminationStatus == 0 && !isCancelled
+            
+            // Log result
+            if success {
+                AppState.shared.addLog("命令执行完成 (耗时: \(String(format: "%.1f", duration))秒)", level: .success)
+            } else {
+                AppState.shared.addLog("命令执行失败 (退出码: \(terminationStatus))", level: .error)
+            }
+            
+            return EDLResult(success: success, output: output, error: error, duration: duration)
+            
+        } catch let error as EDLError {
+            // 超时，终止进程
+            if process.isRunning {
+                process.terminate()
+            }
+            AppState.shared.addLog("命令超时 (\(Int(timeout))秒)", level: .error)
+            throw error
         } catch {
+            if process.isRunning {
+                process.terminate()
+            }
+            AppState.shared.addLog("进程启动失败: \(error.localizedDescription)", level: .error)
             throw EDLError.executionFailed(error.localizedDescription)
         }
-        
-        let output = String(data: outputData as Data, encoding: .utf8) ?? ""
-        let error = String(data: errorData as Data, encoding: .utf8)
-        let duration = Date().timeIntervalSince(startTime)
-        
-        let success = process.terminationStatus == 0 && !isCancelled
-        
-        return EDLResult(success: success, output: output, error: error, duration: duration)
     }
     
     // MARK: - Partition Operations
@@ -95,19 +156,15 @@ class EDLService {
     // MARK: - Bootloader Operations
     
     func sendBootloader(url: URL) async throws -> EDLResult {
+        // edl 需要 nop 子命令来发送引导
         return try await executeEDL(args: [
-            "--loader", url.path
+            "nop", "--loader", url.path
         ], timeout: 60)
     }
     
-    func connectOnePlusAuth() async throws -> EDLResult {
-        // OnePlus EDL auth bypass - try different methods
-        let result = try await executeEDL(args: ["--search"], timeout: 30)
-        return result
-    }
-    
     func connect(device: String? = nil) async throws -> EDLResult {
-        var args = ["--search"]
+        // edl 需要 nop 子命令来连接设备
+        var args = ["nop"]
         if let device = device {
             args.append(contentsOf: ["--portname", device])
         }

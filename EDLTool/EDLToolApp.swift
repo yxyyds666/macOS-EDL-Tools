@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct EDLToolApp: App {
-    @StateObject private var appState = AppState()
+    @StateObject private var appState = AppState.shared
     
     var body: some Scene {
         WindowGroup {
@@ -25,6 +25,8 @@ struct EDLToolApp: App {
 
 // MARK: - App State
 class AppState: ObservableObject {
+    static let shared = AppState()
+    
     @Published var connectedDevice: USBDevice?
     @Published var isMonitoring: Bool = false
     @Published var partitions: [Partition] = []

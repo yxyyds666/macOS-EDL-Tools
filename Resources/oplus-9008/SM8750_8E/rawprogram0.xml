@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<data>
+    <program physical_partition_number="0" filename="OPPO_SM8750_New_Chimera_Digest.elf" label="loader" />
+    <program physical_partition_number="0" filename="OPPO_SM8750_New_Chimera_Sign.bin" label="signature" />
+    <program physical_partition_number="0" filename="OPPO_SM8750_New_Chimera_V1.0.05.melf" label="firehose" />
+</data>

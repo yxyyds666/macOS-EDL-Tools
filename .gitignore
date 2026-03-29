@@ -28,3 +28,11 @@ Package.resolved
 # Temp files
 *.tmp
 *.temp
+
+# Logs
+log.txt
+logs/
+port_trace.txt
+
+# Config
+edl_config.json

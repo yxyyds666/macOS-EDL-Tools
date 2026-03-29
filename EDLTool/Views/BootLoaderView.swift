@@ -11,6 +11,7 @@ struct BootLoaderView: View {
     @State private var customBootloaderURL: URL?
     @State private var showingFilePicker = false
     @State private var showingSuccessAlert = false
+    @State private var showingMaintenanceAlert = false
     @State private var alertMessage = ""
     
     var body: some View {
@@ -45,7 +46,11 @@ struct BootLoaderView: View {
                                 type: type,
                                 isSelected: selectedBootloaderType == type,
                                 action: {
-                                    selectedBootloaderType = type
+                                    if type == .oneplusAuth {
+                                        showingMaintenanceAlert = true
+                                    } else {
+                                        selectedBootloaderType = type
+                                    }
                                 }
                             )
                         }
@@ -97,32 +102,28 @@ struct BootLoaderView: View {
                     .padding(.horizontal)
                 }
                 
-                // OnePlus Special Options
+                // OnePlus Special Options - Disabled
                 if selectedBootloaderType == .oneplusAuth {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("一加免授权模式")
-                            .font(.headline)
+                        HStack {
+                            Text("一加免授权模式")
+                                .font(.headline)
+                            Spacer()
+                            Text("维护中")
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.orange.opacity(0.2))
+                                .foregroundColor(.orange)
+                                .cornerRadius(4)
+                        }
                         
-                        Text("此模式无需引导文件即可直接连接一加设备的 EDL 模式。支持的设备包括：")
+                        Text("此功能正在维护中，请使用自定义引导文件。")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            ForEach(["OnePlus 3/3T", "OnePlus 5/5T", "OnePlus 6/6T", "OnePlus 7/7T 系列", "OnePlus 8/8T/8 Pro", "OnePlus 9/9 Pro", "OnePlus Nord 系列"], id: \.self) { device in
-                                HStack(spacing: 8) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(.green)
-                                        .font(.caption)
-                                    Text(device)
-                                        .font(.subheadline)
-                                }
-                            }
-                        }
-                        .padding()
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(8)
                     }
                     .padding(.horizontal)
+                    .opacity(0.6)
                 }
                 
                 // UEFI Options
@@ -236,12 +237,17 @@ struct BootLoaderView: View {
         } message: {
             Text(alertMessage)
         }
+        .alert("功能维护中", isPresented: $showingMaintenanceAlert) {
+            Button("确定", role: .cancel) { }
+        } message: {
+            Text("一加免授权功能正在维护中，请使用自定义引导文件。")
+        }
     }
     
     private var buttonTitle: String {
         switch selectedBootloaderType {
         case .oneplusAuth:
-            return "连接一加免授权模式"
+            return "功能维护中"
         case .firehose, .sahara:
             return "发送 Firehose 引导"
         case .edlUefi:
@@ -256,7 +262,7 @@ struct BootLoaderView: View {
         
         switch selectedBootloaderType {
         case .oneplusAuth:
-            return true
+            return false // 维护中
         case .firehose, .sahara, .edlUefi, .custom:
             return customBootloaderURL != nil
         }
@@ -266,16 +272,19 @@ struct BootLoaderView: View {
         Task {
             switch selectedBootloaderType {
             case .oneplusAuth:
-                appState.addLog("正在连接一加免授权模式...")
-                await flashVM.connectOnePlusAuth()
+                showingMaintenanceAlert = true
                 
             case .firehose, .sahara, .edlUefi, .custom:
                 guard let url = customBootloaderURL else { return }
                 appState.addLog("正在发送引导文件: \(url.lastPathComponent)")
-                await flashVM.sendBootloader(url: url)
+                do {
+                    let result = try await flashVM.sendBootloader(url: url)
+                    alertMessage = result.success ? "引导发送成功" : "发送失败: \(result.error ?? "未知错误")"
+                } catch {
+                    alertMessage = "发送失败: \(error.localizedDescription)"
+                }
             }
             
-            alertMessage = flashVM.operationStatus
             showingSuccessAlert = true
             appState.addLog(flashVM.operationStatus, level: flashVM.operationStatus.contains("成功") ? .success : .error)
         }
@@ -302,6 +311,16 @@ struct BootloaderTypeCard: View {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(.white)
                     }
+                    
+                    if type == .oneplusAuth {
+                        Text("维护中")
+                            .font(.system(size: 9))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.orange.opacity(0.3))
+                            .foregroundColor(.orange)
+                            .cornerRadius(4)
+                    }
                 }
                 
                 Text(type.rawValue)
@@ -326,6 +345,7 @@ struct BootloaderTypeCard: View {
             )
         }
         .buttonStyle(.plain)
+        .opacity(type == .oneplusAuth ? 0.6 : 1.0)
     }
     
     private var iconName: String {
